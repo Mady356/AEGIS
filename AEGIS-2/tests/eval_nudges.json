@@ -1,0 +1,112 @@
+{
+  "schema": "aegis-v4-eval-nudges",
+  "examples": [
+    {
+      "id": "nudges-gsw-tq-overdue",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-1",
+          "scenario_id": "battlefield",
+          "elapsed_seconds": 90,
+          "completed_checklist_items": [],
+          "extracted_facts": null
+        }
+      },
+      "expect": {
+        "nudges_min": 1,
+        "nudges_includes_citation": "TCCC-TQ-PLACE",
+        "severity_in": ["overdue", "critical_overdue"]
+      }
+    },
+    {
+      "id": "nudges-cardiac-compressions",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-2",
+          "scenario_id": "maritime",
+          "elapsed_seconds": 45,
+          "completed_checklist_items": []
+        }
+      },
+      "expect": {
+        "nudges_min": 1,
+        "nudges_includes_citation": "AHA-COMPRESSION-RATE",
+        "severity_in": ["critical_overdue"]
+      }
+    },
+    {
+      "id": "nudges-pediatric-antipyretic",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-3",
+          "scenario_id": "disaster",
+          "elapsed_seconds": 180,
+          "completed_checklist_items": []
+        }
+      },
+      "expect": {
+        "nudges_min": 1,
+        "nudges_includes_citation": "WHO-PED-PARACETAMOL"
+      }
+    },
+    {
+      "id": "nudges-gsw-tq-done",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-4",
+          "scenario_id": "battlefield",
+          "elapsed_seconds": 90,
+          "completed_checklist_items": ["tourniquet_applied"]
+        }
+      },
+      "expect": {
+        "nudges_max": 1
+      }
+    },
+    {
+      "id": "nudges-empty-encounter",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-5",
+          "scenario_id": "",
+          "elapsed_seconds": 0,
+          "completed_checklist_items": []
+        }
+      },
+      "expect": {
+        "nudges_max": 0
+      }
+    },
+    {
+      "id": "nudges-fully-completed",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-6",
+          "scenario_id": "battlefield",
+          "elapsed_seconds": 600,
+          "completed_checklist_items": [
+            "tourniquet_applied", "txa_administered",
+            "casualty_card_completed", "iv_access_established"
+          ]
+        }
+      },
+      "expect": {
+        "nudges_max": 0
+      }
+    },
+    {
+      "id": "nudges-very-early",
+      "input": {
+        "encounter_state": {
+          "encounter_id": "ENC-eval-7",
+          "scenario_id": "battlefield",
+          "elapsed_seconds": 5,
+          "completed_checklist_items": []
+        }
+      },
+      "expect": {
+        "nudges_max": 0
+      }
+    }
+  ]
+}

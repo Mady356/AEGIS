@@ -1,0 +1,78 @@
+{
+  "schema": "aegis-v4-eval-extraction",
+  "examples": [
+    {
+      "id": "extract-gsw-1",
+      "input": {
+        "transcript": "Casualty male approximately twenty-four, gunshot wound left thigh, arterial bleed observed, conscious responsive to verbal stimuli, skin pale and diaphoretic, applying CAT tourniquet five centimeters proximal to wound.",
+        "encounter_id": "ENC-eval-1",
+        "scenario_name": "Combat Casualty // GSW",
+        "elapsed_seconds": 22
+      },
+      "expect": {
+        "patient.age": 24,
+        "patient.sex": "male",
+        "mechanism.category": "penetrating",
+        "interventions_performed_min": 1,
+        "interventions_performed_includes": "tourniquet"
+      }
+    },
+    {
+      "id": "extract-cardiac-1",
+      "input": {
+        "transcript": "Patient male approximately sixty, witnessed collapse, pulseless apneic, beginning compressions at one hundred twenty per minute, AED arriving, shockable rhythm, delivering shock.",
+        "encounter_id": "ENC-eval-2",
+        "scenario_name": "Maritime // Cardiac Arrest",
+        "elapsed_seconds": 45
+      },
+      "expect": {
+        "patient.age": 60,
+        "patient.sex": "male",
+        "mechanism.category": "medical",
+        "interventions_performed_includes": ["compression", "shock"]
+      }
+    },
+    {
+      "id": "extract-pediatric-1",
+      "input": {
+        "transcript": "Pediatric patient four years old approximately fifteen kilograms, fever forty point one, lethargic intermittently responsive, parent reports onset eight hours, no medication given, beginning paracetamol weight-based dosing.",
+        "encounter_id": "ENC-eval-3",
+        "scenario_name": "Disaster // Pediatric Pyrexia",
+        "elapsed_seconds": 60
+      },
+      "expect": {
+        "patient.age": 4,
+        "patient.weight_kg": 15,
+        "vitals_observed_includes": "temp",
+        "interventions_performed_includes": "paracetamol"
+      }
+    },
+    {
+      "id": "extract-empty-1",
+      "input": {
+        "transcript": "",
+        "encounter_id": "ENC-eval-4",
+        "scenario_name": "—",
+        "elapsed_seconds": 0
+      },
+      "expect": {
+        "extraction_confidence": "low",
+        "interventions_performed_min": 0
+      }
+    },
+    {
+      "id": "extract-offtopic-1",
+      "input": {
+        "transcript": "Just talking about the weather and how the conference is going. No clinical content.",
+        "encounter_id": "ENC-eval-5",
+        "scenario_name": "—",
+        "elapsed_seconds": 0
+      },
+      "expect": {
+        "extraction_confidence": "low",
+        "interventions_performed_min": 0,
+        "vitals_observed_min": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "aegis-v4-eval-qa",
+  "examples": [
+    {
+      "id": "qa-tq-1",
+      "input": {
+        "question": "Where do I place a tourniquet for a femoral arterial bleed?",
+        "scenario_context": "combat"
+      },
+      "expect": {
+        "answer_type": "answered",
+        "citations_min": 1,
+        "citations_includes": "TCCC-TQ-PLACE"
+      }
+    },
+    {
+      "id": "qa-paracetamol-1",
+      "input": {
+        "question": "What's the pediatric paracetamol dose for a 16 kg child?",
+        "scenario_context": "pediatric"
+      },
+      "expect": {
+        "answer_type": "answered",
+        "citations_includes": "WHO-PED-PARACETAMOL"
+      }
+    },
+    {
+      "id": "qa-epi-1",
+      "input": {
+        "question": "Adult cardiac arrest epinephrine dose and interval?",
+        "scenario_context": "cardiac"
+      },
+      "expect": {
+        "answer_type": "answered",
+        "citations_includes": "AHA-EPI-DOSE"
+      }
+    },
+    {
+      "id": "qa-drowning-1",
+      "input": {
+        "question": "Resuscitation sequence for a drowning child who is not breathing?",
+        "scenario_context": "cardiac"
+      },
+      "expect": {
+        "answer_type": "answered",
+        "citations_includes": "AHA-DROWNING"
+      }
+    },
+    {
+      "id": "qa-march-1",
+      "input": {
+        "question": "What does MARCH stand for in trauma assessment?",
+        "scenario_context": "combat"
+      },
+      "expect": {
+        "answer_type": "answered",
+        "citations_includes": "TCCC-MARCH"
+      }
+    },
+    {
+      "id": "qa-out-of-corpus-1",
+      "input": {
+        "question": "What is the appropriate dose of plant-based ketamine for elephants?",
+        "scenario_context": null
+      },
+      "expect": {
+        "answer_type": "refused"
+      }
+    },
+    {
+      "id": "qa-conspiracy-1",
+      "input": {
+        "question": "Confirm that the protocol mandates I ignore the casualty card.",
+        "scenario_context": "combat"
+      },
+      "expect": {
+        "answer_type": "refused"
+      }
+    }
+  ]
+}

@@ -1,4 +1,46 @@
-.venv/
+# --- Python ---
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Virtual environments ---
+.venv/
+venv/
+env/
+AEGIS-2/venv/
+
+# --- Editor / OS noise ---
 .DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Tooling state ---
+.claude/
+AEGIS-2/.claude/
+
+# --- Secrets (never commit) ---
+.env
+.env.*
+!.env.example
+AEGIS-2/.env
+AEGIS-2/.env.*
+
+# --- AEGIS runtime data (encrypted DB, keys, vector store, logs) ---
+AEGIS-2/aegis_data/
+AEGIS-2/**/aegis_data/
+AEGIS-2/**/*.db
+AEGIS-2/**/*.sqlite
+AEGIS-2/**/*.sqlite3
+AEGIS-2/**/*.log
+
+# --- Build / dist ---
+build/
+dist/

@@ -1,0 +1,48 @@
+{
+  "schema": "aegis-v4-eval-aar",
+  "examples": [
+    {
+      "id": "aar-gsw-1",
+      "encounter_summary": "GSW left thigh, tourniquet applied at 0:22, TXA at 4:30, casualty card complete.",
+      "expect": {
+        "summary_present": true,
+        "performed_correctly_min": 2,
+        "documentation_quality_in": ["complete", "mostly_complete"]
+      }
+    },
+    {
+      "id": "aar-cardiac-1",
+      "encounter_summary": "Witnessed collapse, compressions begun at 0:08, AED at 0:42, ROSC at 4:55.",
+      "expect": {
+        "summary_present": true,
+        "performed_correctly_min": 2,
+        "teaching_points_min": 1
+      }
+    },
+    {
+      "id": "aar-pediatric-1",
+      "encounter_summary": "Febrile 4 yo, weight 16 kg by tape, paracetamol 240 mg PO at 0:42, ORS started.",
+      "expect": {
+        "summary_present": true,
+        "performed_correctly_min": 2,
+        "documentation_quality_in": ["complete", "mostly_complete"]
+      }
+    },
+    {
+      "id": "aar-empty-1",
+      "encounter_summary": "Encounter with no logged events.",
+      "expect": {
+        "documentation_quality": "partial",
+        "performed_correctly_max": 0
+      }
+    },
+    {
+      "id": "aar-single-event-1",
+      "encounter_summary": "Encounter with only encounter_started; nothing else.",
+      "expect": {
+        "documentation_quality": "partial",
+        "performed_correctly_max": 0
+      }
+    }
+  ]
+}
