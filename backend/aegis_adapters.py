@@ -18,7 +18,10 @@ def _load_module(filename: str, module_name: str) -> ModuleType | None:
     if not spec or not spec.loader:
         return None
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        return None
     return module
 
 
