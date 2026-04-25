@@ -7,7 +7,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parent.parent
-AEGIS_BACKEND = ROOT / "AEGIS" / "backend"
+AEGIS_BACKEND = ROOT / "AEGIS-2" / "backend"
 
 
 def _load_module(filename: str, module_name: str) -> ModuleType | None:

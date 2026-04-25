@@ -1,0 +1,12 @@
+[
+  {
+    "citation": "ATLS-Cardio-1",
+    "keywords": ["chest pain", "pressure-like chest pain", "ecg", "cardiac"],
+    "guidance": "Prioritize ABCs, continuous monitoring, and obtain early ECG when available."
+  },
+  {
+    "citation": "ATLS-Shock-2",
+    "keywords": ["hypotension", "shock", "tachycardia", "poor perfusion"],
+    "guidance": "Treat shock as time-critical and reassess perfusion after each intervention."
+  }
+]

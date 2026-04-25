@@ -1,6 +1,7 @@
 import unittest
 
 from backend.orchestrator import run_aegis_pipeline
+from backend.retrieval import retrieve_protocol_chunks
 
 
 class TestAEGISPipeline(unittest.TestCase):
@@ -91,6 +92,26 @@ class TestAEGISPipeline(unittest.TestCase):
         self.assertIsInstance(result["timeline"], list)
         self.assertIsInstance(result["questions"], dict)
         self.assertIsInstance(result["missed_signals"], dict)
+
+    def test_protocol_retrieval_loads_local_corpus_files(self):
+        encounter = {
+            "chief_complaint": "Chest pain with shortness of breath",
+            "symptoms": ["sweating", "pressure-like chest pain", "dyspnea"],
+        }
+        chunks = retrieve_protocol_chunks(encounter, triage={}, differential={})
+        self.assertTrue(any("ATLS-Cardio-1::" in c for c in chunks))
+        self.assertTrue(any("WHO-Airway-2::" in c for c in chunks))
+
+    def test_protocol_retrieval_generalized_symptom_matching(self):
+        encounter = {
+            "chief_complaint": "CP with SOB",
+            "symptoms": ["breathless and sweaty"],
+            "vitals": {"oxygen_saturation": 89, "heart_rate": 132, "systolic_bp": 85},
+        }
+        chunks = retrieve_protocol_chunks(encounter, triage={"acuity": "red"}, differential={})
+        # CP/SOB abbreviations and breathless wording should still map to relevant chunks.
+        self.assertTrue(any(c.startswith("ATLS-Cardio-1::") for c in chunks))
+        self.assertTrue(any(c.startswith("WHO-Airway-2::") for c in chunks))
 
 
 if __name__ == "__main__":
