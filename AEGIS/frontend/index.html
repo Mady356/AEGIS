@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AEGIS — Autonomous Emergency Guidance &amp; Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<!-- V3 — Profile selector pre-cockpit screen -->
+<div class="profile-screen" id="profileScreen">
+  <div class="profile-mark">AEGIS</div>
+  <div class="profile-sub">SELECT DEPLOYMENT PROFILE</div>
+  <div class="profile-list" id="profileList"></div>
+  <button class="profile-skip" id="profileSkip">CONTINUE WITHOUT PROFILE</button>
+</div>
+
+<div class="boot" id="boot" hidden>
+  <div class="boot-mark" id="bootMark">AEGIS</div>
+  <div class="boot-sub" id="bootSub"></div>
+  <div class="boot-meta" id="bootMeta">LOCAL INFERENCE // NO TRANSMIT // OFFLINE OPERATIONS</div>
+</div>
+
+<div class="scanline" aria-hidden="true"></div>
+
+<div class="cockpit" id="cockpit">
+
+  <!-- V3 — Multi-patient queue strip -->
+  <div class="queue-strip glass" id="queueStrip">
+    <span class="label queue-label">Queue</span>
+    <div class="queue-tiles" id="queueTiles"></div>
+    <button class="queue-new" id="queueNew" aria-label="Create new encounter">+ New</button>
+  </div>
+
+  <header class="header glass">
+    <div class="brand">
+      <div class="brand-mark">AEGIS</div>
+      <span class="live-dot" role="status" aria-label="System live"></span>
+      <div class="brand-meta">
+        <span class="brand-expand">Autonomous Emergency Guidance &amp; Intelligence System</span>
+        <span class="brand-version">v2.0.0 // BUILD 2026.04</span>
+      </div>
+    </div>
+
+    <div class="status-strip" role="status" aria-label="Operational status">
+      <div class="status-pill active" aria-label="Network offline — operational">
+        <span class="dot"></span><span>Offline</span>
+      </div>
+      <div class="status-pill"><span class="dot"></span><span>No Transmit</span></div>
+      <div class="status-pill"><span class="dot"></span><span>Local Inference</span></div>
+    </div>
+
+    <div class="header-right">
+      <span class="profile-tag mono-sm" id="profileTag" hidden>PROFILE: —</span>
+      <button class="hdr-warn" id="warnBtn" hidden aria-label="Pending interactions">
+        <span class="warn-glyph">⚠</span><span id="warnCount">0</span>
+      </button>
+      <button class="hdr-btn" id="recordBtn" aria-label="Open patient record">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+          <polyline points="14 3 14 9 20 9"/>
+          <line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/>
+        </svg>
+        <span>Record</span>
+      </button>
+      <button class="hdr-btn" id="sysBtn" aria-label="Open system diagnostics">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>
+        </svg>
+        <span>Sys</span>
+      </button>
+      <span class="sep">/</span>
+      <span class="clock" id="clock">--:--:-- Z</span>
+    </div>
+  </header>
+
+  <aside class="left">
+    <div class="panel glass">
+      <div>
+        <div class="label">Active Scenario</div>
+        <div class="scenario-name" id="scenarioName">—</div>
+        <div class="pt-id" id="ptId">PT-—</div>
+        <div class="allergies-line" id="allergiesLine"><span class="ak">Allergies</span><span class="av" id="allergiesValue">not yet captured</span></div>
+      </div>
+
+      <div>
+        <div class="label">Mission Elapsed</div>
+        <div class="elapsed">
+          <span class="elapsed-val" id="elapsed">T+00:00:00</span>
+          <span class="elapsed-label">Local clock</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="env-block">
+        <div class="label">Environment</div>
+        <div class="env-row connectivity-row">
+          <span class="k">Connectivity</span>
+          <span class="v" id="netState">
+            <span class="ns-l1" id="netStateL1">PROBING</span>
+            <span class="ns-l2" id="netStateL2"><span id="netGlyph" class="ns-glyph">◇</span> <span id="netStateL2Text">initializing</span></span>
+          </span>
+        </div>
+        <div class="env-row"><span class="k">Inference</span><span class="v">LOCAL // GX10</span></div>
+        <div class="env-row"><span class="k">Audit</span><span class="v">LOCAL LOG ONLY</span></div>
+        <div class="env-row"><span class="k">Data Residency</span><span class="v">DEVICE-RESIDENT</span></div>
+        <div class="env-row"><span class="k">Power</span><span class="v">RUCK BATTERY 87%</span></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="label" style="margin-bottom: 10px;">Scenario Selector</div>
+        <div class="scenario-list" id="scenarioList"></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="mono-sm" style="opacity: 0.7;">
+        "The network is optional.<br/>Care is not."
+      </div>
+    </div>
+  </aside>
+
+  <main class="center">
+    <div class="panel glass">
+      <div class="center-header">
+        <div class="section-h">Clinical Reasoning</div>
+        <div class="right-meta">
+          <span id="modelLabel">MODEL: —</span>
+          <span class="sep">·</span>
+          <span class="ok" id="ragLabel">RAG ATTACHED</span>
+          <span class="sep">·</span>
+          <span id="tpsLabel">— tok/s</span>
+          <span class="infer-pulse" id="inferPulse" aria-hidden="true"></span>
+        </div>
+      </div>
+
+      <div class="reasoning-log" id="reasoningLog" aria-live="polite"></div>
+
+      <div class="progress-rail">
+        <span class="label">Guidance Progression</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="count" id="progressCount">0 / 0</span>
+      </div>
+    </div>
+  </main>
+
+  <aside class="right">
+    <section class="panel glass" style="flex: 0 0 auto;">
+      <div class="vitals-head">
+        <div class="section-h">Vitals // Live</div>
+        <div class="vitals-head-right">
+          <button class="cam-toggle" id="camToggle" aria-pressed="false">CAM</button>
+          <span class="ok" id="vitalsTimer">—</span>
+        </div>
+      </div>
+      <div class="vitals-grid" id="vitalsGrid"></div>
+    </section>
+
+    <section class="panel glass checklist-panel" style="flex: 1 1 auto;">
+      <div class="checklist-head">
+        <div class="section-h">Procedural Checklist</div>
+        <span class="mono-sm" id="checklistCount">0 / 0</span>
+      </div>
+      <ul class="checklist" id="checklist"></ul>
+    </section>
+
+    <section class="panel glass ref-panel" style="flex: 0 0 auto;">
+      <div class="ref-head">
+        <div class="ref-tabs">
+          <button class="ref-tab active" data-tab="ref">Reference</button>
+          <button class="ref-tab" data-tab="calc">Calculators <span class="calc-count" id="calcCount">00</span></button>
+        </div>
+      </div>
+      <div class="ref-tab-pane" data-pane="ref">
+        <div class="ref-body" id="refBody"></div>
+        <div class="ref-cite" id="refCite"></div>
+      </div>
+      <div class="ref-tab-pane" data-pane="calc" hidden>
+        <div class="calc-list" id="calcList"></div>
+        <div class="calc-empty mono-sm" id="calcEmpty">No calculators invoked this encounter.</div>
+      </div>
+    </section>
+  </aside>
+
+  <footer class="bottom">
+    <div class="panel glass">
+      <div class="mic-wrap">
+        <button class="mic-btn" id="micBtn" aria-label="Press and hold to transmit to local model">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#E8D5B7" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+            <path d="M19 11a7 7 0 0 1-14 0"/>
+            <line x1="12" y1="18" x2="12" y2="22"/>
+            <line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+        </button>
+        <div class="mic-label">
+          Press &amp; Hold to Transmit<span class="em">→ local model</span>
+        </div>
+        <button class="img-btn" id="imgBtn" aria-label="Capture wound image">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#E8D5B7" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </button>
+        <input type="file" id="imgFile" accept="image/*" hidden />
+      </div>
+
+      <div class="waveform" id="waveform">
+        <div class="wave-status" id="waveStatus">
+          <span class="em" id="waveStatusEm">Local Inference</span>
+          <span id="waveStatusTime">// 0.0s</span>
+        </div>
+      </div>
+
+      <div class="transcript">
+        <div class="tag">[VOX-IN]</div>
+        <div class="body idle" id="transcript">Awaiting input // press to transmit.</div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<!-- Citation overlay -->
+<div class="ovl-scrim" id="citeScrim" aria-hidden="true">
+  <div class="ovl glass" id="citeOvl" role="dialog" aria-modal="true" aria-labelledby="citeOvlTitle">
+    <div class="ovl-head">
+      <span class="label">Retrieved Source</span>
+      <span class="mono ovl-id" id="citeOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="cite" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body"><div class="cite-text" id="citeText">—</div></div>
+    <div class="ovl-foot">
+      <div class="cite-meta">
+        <div><span class="label-dim">Document</span><span class="mono" id="citeDoc">—</span></div>
+        <div><span class="label-dim">Page</span><span class="mono" id="citePage">—</span></div>
+        <div><span class="label-dim">Section</span><span class="mono" id="citeSection">—</span></div>
+      </div>
+      <div class="cite-score">
+        <span class="label-dim">Retrieval Score</span>
+        <span class="mono score-val" id="citeScore">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Record overlay -->
+<div class="ovl-scrim" id="recScrim" aria-hidden="true">
+  <div class="ovl glass ovl-wide" id="recOvl" role="dialog" aria-modal="true">
+    <div class="ovl-head">
+      <span class="label">Patient Record</span>
+      <span class="mono ovl-id" id="recOvlTitle">—</span>
+      <select class="rec-pick mono" id="recPicker" aria-label="Select encounter"></select>
+      <button class="ovl-close" data-ovl="rec" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body">
+      <div class="rec-summary">
+        <div><span class="label-dim">Scenario</span><span class="ser" id="recScenario">—</span></div>
+        <div><span class="label-dim">Patient</span><span class="mono" id="recPt">—</span></div>
+        <div><span class="label-dim">Duration</span><span class="mono" id="recDur">—</span></div>
+        <div><span class="label-dim">Integrity</span><span class="mono" id="recHash" title="">—</span></div>
+      </div>
+      <div class="rec-timeline" id="recTimeline"></div>
+    </div>
+    <div class="ovl-foot rec-foot">
+      <div class="mono-sm">RECORD INTEGRITY: <span id="recIntegrity" class="ok">SHA-256 ✓</span></div>
+      <div class="mono-sm">STORAGE: DEVICE-RESIDENT // ENCRYPTED AT REST</div>
+      <button class="export-btn mono-sm" id="exportBtn">EXPORT: DEFERRED PENDING DEFINITIVE CARE HANDOFF</button>
+    </div>
+    <div class="export-tip" id="exportTip" hidden>Handoff transmits encounter package to definitive-care endpoint when connectivity returns. AEGIS holds the record until the operator confirms transfer. Deferred until V3.</div>
+  </div>
+</div>
+
+<!-- System overlay -->
+<div class="ovl-scrim" id="sysScrim" aria-hidden="true">
+  <div class="ovl glass ovl-wide" id="sysOvl" role="dialog" aria-modal="true">
+    <div class="ovl-head">
+      <span class="label">System Diagnostics</span>
+      <span class="mono ovl-id" id="sysOvlTitle">v2.0.0</span>
+      <button class="ovl-close" data-ovl="sys" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body">
+      <div class="sys-grid">
+        <div class="sys-row"><span class="label-dim">Model</span><span class="mono" id="sysModel">—</span></div>
+        <div class="sys-row"><span class="label-dim">Embedding Model</span><span class="mono" id="sysEmbed">—</span></div>
+        <div class="sys-row"><span class="label-dim">Inference Backend</span><span class="mono" id="sysBackend">—</span></div>
+        <div class="sys-row"><span class="label-dim">RAM Resident</span><span class="mono" id="sysRam">—</span></div>
+        <div class="sys-row"><span class="label-dim">Inference Speed</span><span class="mono" id="sysTps">—</span></div>
+        <div class="sys-row"><span class="label-dim">STT Model</span><span class="mono" id="sysStt">—</span></div>
+        <div class="sys-row"><span class="label-dim">Corpus</span><span class="mono" id="sysCorpus">—</span></div>
+        <div class="sys-row"><span class="label-dim">Embedding Dimensions</span><span class="mono" id="sysDims">—</span></div>
+        <div class="sys-row"><span class="label-dim">Source Documents</span><span class="mono" id="sysDocs">—</span></div>
+        <div class="sys-row"><span class="label-dim">Last Index Build</span><span class="mono" id="sysIndex">—</span></div>
+        <div class="sys-row"><span class="label-dim">Record Store</span><span class="mono" id="sysRecords">—</span></div>
+        <div class="sys-row"><span class="label-dim">Build</span><span class="mono" id="sysBuild">—</span></div>
+      </div>
+      <div class="sys-probes-wrap">
+        <div class="label-dim" style="margin-bottom: 8px;">Network Probes (last 30, newest right)</div>
+        <div class="sys-probes" id="sysProbes"></div>
+        <div class="mono-sm" id="sysProbesMeta" style="margin-top: 6px;">—</div>
+      </div>
+    </div>
+    <div class="ovl-foot mono-sm">All values pulled live from local backend. No outbound network calls.</div>
+  </div>
+</div>
+
+<!-- V3 — Handoff overlay -->
+<div class="ovl-scrim" id="handoffScrim" aria-hidden="true">
+  <div class="ovl glass ovl-wide" id="handoffOvl" role="dialog" aria-modal="true">
+    <div class="ovl-head">
+      <span class="label">Definitive Care Handoff</span>
+      <span class="mono ovl-id" id="handoffOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="handoff" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body" id="handoffBody">
+      <div class="hndf-section">
+        <div class="label-dim">Recipient</div>
+        <div class="hndf-recipient">
+          <div><span class="label-dim">Name</span><span class="mono" id="hRecipName">—</span></div>
+          <div><span class="label-dim">Endpoint</span><span class="mono" id="hRecipEndpoint">—</span></div>
+          <div><span class="label-dim">Pub Key</span><span class="mono" id="hRecipKey">—</span></div>
+        </div>
+      </div>
+      <div class="hndf-section">
+        <div class="label-dim">Bundle Preview</div>
+        <div class="hndf-counts mono-sm" id="hCounts">—</div>
+        <div class="hndf-hash"><span class="label-dim">Bundle Hash</span><span class="mono" id="hHash" title="">—</span></div>
+        <div class="hndf-size mono-sm"><span class="label-dim">Size</span><span id="hSize">—</span></div>
+      </div>
+      <div class="hndf-section">
+        <div class="label-dim">Connectivity</div>
+        <div class="hndf-net" id="hNet">—</div>
+      </div>
+      <div class="hndf-warn mono-sm">Once transmitted, the encounter record leaves device-resident state. This action is logged and signed.</div>
+      <button class="hndf-transmit" id="hTransmit" disabled>TRANSMIT</button>
+    </div>
+    <!-- Transmission view -->
+    <div class="ovl-body hndf-tx" id="handoffTxBody" hidden>
+      <div class="hndf-section">
+        <div class="label-dim">Bundle</div>
+        <div class="hndf-hash"><span class="mono" id="hTxHash">—</span></div>
+      </div>
+      <div class="hndf-section">
+        <div class="label-dim">Transmitting</div>
+        <div class="hndf-bytes mono"><span id="hBytes">0</span> / <span id="hBytesTotal">—</span> bytes</div>
+        <div class="hndf-bars" id="hBars"></div>
+      </div>
+      <div class="hndf-section hndf-receipt" id="hReceipt" hidden>
+        <div class="label-dim">Receipt</div>
+        <div class="hndf-r-line"><span class="label-dim">Receipt ID</span><span class="mono" id="hRid">—</span></div>
+        <div class="hndf-r-line"><span class="label-dim">Received At</span><span class="mono" id="hRtime">—</span></div>
+        <div class="hndf-r-line"><span class="label-dim">Receiver</span><span class="mono" id="hRrecv">—</span></div>
+        <div class="hndf-r-line"><span class="label-dim">Confirmed Hash</span><span class="mono" id="hRhash">—</span></div>
+        <div class="hndf-verified ok"><span class="ok-glyph">✓</span> VERIFIED</div>
+      </div>
+    </div>
+    <div class="ovl-foot mono-sm">Handoff is the only outbound traffic this device emits. Verifiable at both ends.</div>
+  </div>
+</div>
+
+<!-- V3 — Calculator detail overlay -->
+<div class="ovl-scrim" id="calcScrim" aria-hidden="true">
+  <div class="ovl glass" id="calcOvl" role="dialog" aria-modal="true">
+    <div class="ovl-head">
+      <span class="label">Calculator Detail</span>
+      <span class="mono ovl-id" id="calcOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="calc" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body" id="calcBody">—</div>
+    <div class="ovl-foot mono-sm" id="calcSrc">—</div>
+  </div>
+</div>
+
+<!-- V3 — Image detail overlay -->
+<div class="ovl-scrim" id="imgScrim" aria-hidden="true">
+  <div class="ovl glass ovl-wide" id="imgOvl" role="dialog" aria-modal="true">
+    <div class="ovl-head">
+      <span class="label">Image Analysis</span>
+      <span class="mono ovl-id" id="imgOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="img" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+      </button>
+    </div>
+    <div class="ovl-body" id="imgBody">—</div>
+    <div class="ovl-foot mono-sm" id="imgSig">—</div>
+  </div>
+</div>
+
+<!-- V3 — Triage popover -->
+<div class="triage-pop" id="triagePop" hidden>
+  <button class="triage-opt" data-cat="red"><span class="t-dot t-red"></span>Red · Immediate</button>
+  <button class="triage-opt" data-cat="yellow"><span class="t-dot t-yellow"></span>Yellow · Delayed</button>
+  <button class="triage-opt" data-cat="green"><span class="t-dot t-green"></span>Green · Minor</button>
+  <button class="triage-opt" data-cat="black"><span class="t-dot t-black"></span>Black · Expectant</button>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

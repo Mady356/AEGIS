@@ -1,0 +1,21 @@
+{
+  "age": 42,
+  "sex": "male",
+  "chief_complaint": "Chest pain and shortness of breath",
+  "symptoms": [
+    "pressure-like chest pain",
+    "sweating",
+    "nausea",
+    "shortness of breath"
+  ],
+  "vitals": {
+    "heart_rate": 128,
+    "blood_pressure": "86/54",
+    "respiratory_rate": 26,
+    "oxygen_saturation": 90,
+    "temperature": 98.7,
+    "mental_status": "anxious but oriented"
+  },
+  "context": "Remote disaster site with no connectivity",
+  "notes": "Patient reports symptoms began 45 minutes ago after carrying supplies."
+}
