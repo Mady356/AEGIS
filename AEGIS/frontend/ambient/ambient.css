@@ -1,0 +1,57 @@
+/* ============================================================
+   AEGIS AMBIENT FLOW FIELD
+   Continuous flowing background animation. The canvas itself is
+   self-contained — remove the <canvas id="ambient-flow"> element
+   plus the two files in frontend/ambient/ to disable.
+   ============================================================ */
+
+#ambient-flow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  user-select: none;
+  background: #0A0907;
+}
+
+/* Subtle warm radial overlay tied to AEGIS identity, sitting on top
+   of the canvas without intercepting its rendering. ::after attaches
+   to the body so it covers the canvas in a stacking context that
+   doesn't disturb the canvas's own compositing. */
+body:has(#ambient-flow)::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(
+    ellipse 60% 50% at 15% 10%,
+    rgba(217, 119, 6, 0.04) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Reduced motion: hide the canvas entirely, fall back to a static
+   black base with the warm radial overlay so the cockpit doesn't
+   look unfinished against a flat black void. */
+@media (prefers-reduced-motion: reduce) {
+  #ambient-flow {
+    display: none;
+  }
+
+  body:has(#ambient-flow) {
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 15% 10%,
+        rgba(217, 119, 6, 0.04) 0%,
+        transparent 70%
+      ),
+      #0A0907;
+  }
+}

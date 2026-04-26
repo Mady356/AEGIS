@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEGIS — Crisis Mode</title>
+  <link rel="stylesheet" href="/crisis.css" />
+</head>
+<body>
+
+<header class="cm-bar">
+  <div class="cm-brand">AEGIS</div>
+  <div class="cm-mode">CRISIS MODE</div>
+  <div class="cm-offline" id="offlineBadge">OFFLINE MODE ACTIVE</div>
+</header>
+
+<main class="cm-main">
+
+  <!-- Step 1: guided intake -->
+  <section class="cm-card cm-intake" id="intakeCard">
+    <h1 class="cm-h1">Tell me what is happening.</h1>
+    <p class="cm-sub">Short answers are fine. Skip anything you don't know.</p>
+    <form id="intakeForm" class="cm-form" autocomplete="off"></form>
+    <div class="cm-actions">
+      <button type="button" id="submitBtn" class="cm-primary">Get help now</button>
+    </div>
+  </section>
+
+  <!-- Step 2: crisis view -->
+  <section class="cm-card cm-result" id="resultCard" hidden>
+
+    <div class="cm-acuity-row">
+      <div class="cm-acuity" id="acuityBadge" data-acuity="yellow">
+        <span class="cm-acuity-dot" aria-hidden="true"></span>
+        <span class="cm-acuity-label" id="acuityLabel">CHECKING</span>
+      </div>
+      <button type="button" id="restartBtn" class="cm-link">Start a new patient</button>
+    </div>
+
+    <p class="cm-support" id="supportMessage"></p>
+
+    <div class="cm-grid">
+      <div class="cm-col cm-col-actions">
+        <h2 class="cm-h2">Do these now</h2>
+        <ol class="cm-list" id="topActions"></ol>
+      </div>
+
+      <div class="cm-col cm-col-rule-outs">
+        <h2 class="cm-h2">Dangerous to miss — rule out</h2>
+        <ol class="cm-list" id="topRuleOuts"></ol>
+      </div>
+
+      <div class="cm-col cm-col-questions">
+        <h2 class="cm-h2 cm-h2-emph">Check next</h2>
+        <ol class="cm-list cm-list-emph" id="nextQuestions"></ol>
+      </div>
+    </div>
+
+    <p class="cm-guidance" id="guidanceMessage"></p>
+
+    <p class="cm-learning" id="learningPoint"></p>
+
+    <details class="cm-deeper">
+      <summary>Show details (clinician)</summary>
+      <div class="cm-deeper-grid">
+        <div><h3>Triage</h3><pre id="rawTriage"></pre></div>
+        <div><h3>Differential</h3><pre id="rawDiff"></pre></div>
+        <div><h3>Protocol</h3><pre id="rawProto"></pre></div>
+        <div><h3>Missed signals</h3><pre id="rawMissed"></pre></div>
+        <div><h3>Reasoning trace</h3><pre id="rawTrace"></pre></div>
+        <div><h3>Audit</h3><pre id="rawAudit"></pre></div>
+      </div>
+    </details>
+
+  </section>
+
+  <!-- Fail-safe banner (shown when orchestrator halts) -->
+  <section class="cm-card cm-failsafe" id="failsafeCard" hidden>
+    <h1 class="cm-h1">Slow down — answer these first.</h1>
+    <p class="cm-sub" id="failsafeMessage"></p>
+    <ol class="cm-list cm-list-emph" id="failsafeQuestions"></ol>
+    <button type="button" id="failsafeBack" class="cm-primary">Back to questions</button>
+  </section>
+
+</main>
+
+<script src="/crisis.js"></script>
+</body>
+</html>

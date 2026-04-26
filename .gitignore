@@ -13,7 +13,7 @@ __pycache__/
 .venv/
 venv/
 env/
-AEGIS-2/venv/
+AEGIS/venv/
 
 # --- Editor / OS noise ---
 .DS_Store
@@ -24,22 +24,22 @@ AEGIS-2/venv/
 
 # --- Tooling state ---
 .claude/
-AEGIS-2/.claude/
+AEGIS/.claude/
 
 # --- Secrets (never commit) ---
 .env
 .env.*
 !.env.example
-AEGIS-2/.env
-AEGIS-2/.env.*
+AEGIS/.env
+AEGIS/.env.*
 
 # --- AEGIS runtime data (encrypted DB, keys, vector store, logs) ---
-AEGIS-2/aegis_data/
-AEGIS-2/**/aegis_data/
-AEGIS-2/**/*.db
-AEGIS-2/**/*.sqlite
-AEGIS-2/**/*.sqlite3
-AEGIS-2/**/*.log
+AEGIS/aegis_data/
+AEGIS/**/aegis_data/
+AEGIS/**/*.db
+AEGIS/**/*.sqlite
+AEGIS/**/*.sqlite3
+AEGIS/**/*.log
 
 # --- Build / dist ---
 build/

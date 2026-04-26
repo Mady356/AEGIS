@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AEGIS — Autonomous Emergency Guidance &amp; Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<link rel="stylesheet" href="/ambient/ambient.css" />
+</head>
+<body>
+
+<!-- ====================== AMBIENT FLOW FIELD ======================
+     Continuous flowing background animation behind the cockpit.
+     Single full-viewport canvas driven by 3D simplex noise.
+     Self-contained: remove this <canvas> + frontend/ambient/* to disable.
+     ================================================================ -->
+<canvas id="ambient-flow" aria-hidden="true"></canvas>
+
+<!-- Profile selector (preserved, hidden after pick) -->
+<div class="profile-screen" id="profileScreen">
+  <div class="profile-mark">AEGIS</div>
+  <div class="profile-sub">SELECT DEPLOYMENT PROFILE</div>
+  <div class="profile-list" id="profileList"></div>
+  <button class="profile-skip" id="profileSkip">CONTINUE WITHOUT PROFILE</button>
+</div>
+
+<!-- ============================================================
+     V5 COCKPIT
+     ============================================================ -->
+<div class="cockpit" id="cockpit" hidden>
+
+  <!-- ====================== TOP BAR ====================== -->
+  <header class="topbar">
+    <div class="tb-brand">
+      <div class="tb-logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32">
+          <polygon points="16,3 29,28 3,28" stroke="currentColor" stroke-width="1.6" fill="none"/>
+          <circle cx="16" cy="20" r="3.5" stroke="currentColor" stroke-width="1.4" fill="none"/>
+          <line x1="16" y1="11" x2="16" y2="16" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </div>
+      <div class="tb-wordstack">
+        <div class="tb-mark">AEGIS</div>
+      </div>
+      <div class="tb-meta">
+        <span class="tb-subtitle">Autonomous Emergency Guidance &amp; Intelligence System</span>
+        <span class="tb-version" id="tbVersion">v2.0.0 // BUILD 2026.04</span>
+        <span class="tb-scope">Documentation interface · not a clinical advisor</span>
+      </div>
+    </div>
+
+    <div class="tb-pills" role="status">
+      <div class="tb-pill active" id="tbPillOffline"
+           tabindex="0"
+           aria-label="Offline. No transmit. Local inference."
+           title="OFFLINE — three guarantees:&#10;• No network egress&#10;• No transmit (data stays on this device)&#10;• Local inference (the LLM runs on local hardware)">
+        <span class="pill-dot"></span>
+        <span>Offline</span>
+        <span class="pill-tooltip" role="tooltip">
+          <span class="pill-tooltip-title">Three guarantees</span>
+          <span class="pill-tooltip-row"><span class="pill-tooltip-dot"></span>No network egress</span>
+          <span class="pill-tooltip-row"><span class="pill-tooltip-dot"></span>No transmit — data stays on device</span>
+          <span class="pill-tooltip-row"><span class="pill-tooltip-dot"></span>Local inference — LLM runs on this hardware</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="tb-actions">
+      <button class="tb-btn" id="briefBtn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <span>Brief</span>
+      </button>
+      <button class="tb-btn" id="recordBtn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="14 3 14 9 20 9"/></svg>
+        <span>Record</span>
+      </button>
+      <button class="tb-btn" id="sysBtn">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+        <span>Sys</span>
+      </button>
+    </div>
+
+  </header>
+
+  <!-- ====================== COCKPIT BODY ====================== -->
+  <div class="cockpit-body">
+
+    <!-- ============== LEFT COLUMN ============== -->
+    <aside class="col col-left">
+
+      <section class="panel l-scenario">
+        <div class="section-h"><span>Active Scenario</span></div>
+        <div class="scenario-name" id="scenarioName">—</div>
+        <div class="pt-id" id="ptId">PT-—</div>
+      </section>
+
+      <section class="panel l-allergies">
+        <div class="section-h"><span>Allergies</span></div>
+        <div class="allergy-list" id="allergyList">
+          <div class="allergy-empty">Not yet captured</div>
+        </div>
+      </section>
+
+      <section class="panel l-elapsed">
+        <div class="section-h"><span>Mission Elapsed</span></div>
+        <div class="timer-row">
+          <span class="timer-val" id="elapsed">T+00:00:00</span>
+          <span class="timer-lbl">Local Clock</span>
+        </div>
+      </section>
+
+      <section class="panel l-environment">
+        <div class="section-h"><span>Environment</span></div>
+        <div class="env-list" id="envList">
+          <div class="env-row"><span class="check">✓</span><span>Combat Zone</span></div>
+          <div class="env-sub">Low Light</div>
+        </div>
+      </section>
+
+      <section class="panel l-situation">
+        <div class="section-h">
+          <span>Situation</span>
+          <span class="sit-status" id="sitStatus"></span>
+        </div>
+        <textarea id="situationInput" class="sit-input" rows="3"
+          placeholder="Brief: what's happening, what you've done, what you need…"></textarea>
+        <button id="situationSave" class="sit-save" type="button">SAVE</button>
+      </section>
+
+      <section class="panel l-context scroll">
+        <div class="section-h">
+          <span>Context Log</span>
+          <span class="ctx-live"><span class="ctx-dot"></span><span class="ctx-live-lbl">Live</span></span>
+        </div>
+        <div class="ctx-list" id="ctxList"></div>
+      </section>
+
+    </aside>
+
+    <!-- ============== CENTER COLUMN ============== -->
+    <main class="col col-center">
+
+      <div class="crisis-strip">
+        <div class="crisis-left">
+          <span class="crisis-h">Crisis Mode</span>
+          <span class="crisis-pulse"></span>
+          <span class="crisis-state">Offline Active</span>
+        </div>
+        <div class="crisis-think" id="crisisThink">
+          <span>Thinking</span>
+          <span class="think-dots"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+
+      <section class="panel amber current-step" id="currentStep">
+        <div class="section-h"><span>Current Step</span></div>
+        <div class="cs-fade" id="csFade">
+          <div class="cs-header-row">
+            <div class="cs-icon" id="csIcon"></div>
+            <div class="cs-title" id="csTitle">—</div>
+          </div>
+          <div class="cs-instruction" id="csInstruction">Awaiting scenario.</div>
+        </div>
+        <div class="cs-progress-row">
+          <span class="cs-progress-lbl" id="csProgressLbl">STEP 0 OF 0</span>
+          <div class="cs-progress-bar"><div class="cs-progress-fill" id="csProgressFill"></div></div>
+        </div>
+      </section>
+
+      <section class="panel jump-section" id="jumpSection">
+        <div class="section-h"><span>Jump To Step</span></div>
+        <div class="jump-sub">Choose a different step if needed</div>
+        <div class="jump-list" id="jumpList"></div>
+      </section>
+
+      <section class="panel question-section" id="questionSection" hidden>
+        <div class="question-text" id="questionText">—</div>
+        <div class="question-buttons">
+          <button class="q-btn" id="qYes">Yes</button>
+          <button class="q-btn" id="qNo">No</button>
+        </div>
+      </section>
+
+      <button class="complete-btn" id="completeBtn">
+        <span class="complete-primary">
+          <span>Mark Step Complete</span><span class="check">✓</span>
+        </span>
+        <span class="complete-confirm" id="completeConfirm">I have completed this step.</span>
+      </button>
+
+      <section class="panel c-ask">
+        <div class="section-h"><span>Ask AEGIS</span></div>
+        <div class="ask-row">
+          <input class="ask-input" id="askInput" type="text" placeholder="Ask a clinical question..." autocomplete="off" />
+          <button class="ask-btn" id="askBtn">Ask</button>
+        </div>
+        <div class="ask-output empty" id="askOutput"></div>
+      </section>
+
+    </main>
+
+    <!-- ============== RIGHT COLUMN ============== -->
+    <aside class="col col-right">
+
+      <section class="panel r-vitals">
+        <div class="section-h">
+          <span>Vitals</span>
+        </div>
+        <div class="vitals-grid" id="vitalsGrid"></div>
+      </section>
+
+      <section class="panel r-checklist scroll">
+        <div class="section-h">
+          <span>Procedural Checklist</span>
+          <span class="h-aux mono-sm" id="chkCount">0 / 0</span>
+        </div>
+        <ul class="checklist" id="checklist"></ul>
+      </section>
+
+    </aside>
+
+  </div>
+</div>
+
+<!-- ====================== OVERLAYS (preserved, minimal) ====================== -->
+<div class="ovl-scrim" id="intakeScrim">
+  <div class="ovl">
+    <div class="ovl-head">
+      <span class="label">Encounter Intake</span>
+      <span class="ovl-id">SITUATION</span>
+      <button class="ovl-close" data-ovl="intake"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="ovl-body" style="font-family:var(--f-serif);font-size:0.9375rem;line-height:1.55;color:var(--fg-0);">
+      <p style="margin-bottom:10px;">Tell AEGIS what's happening. A few sentences is enough — it grounds every chat reply and protocol nudge from here on out.</p>
+      <textarea id="intakeSituationInput" rows="5"
+        style="width:100%;padding:10px 12px;font-family:var(--f-serif);font-size:0.9375rem;line-height:1.45;color:var(--fg-0);background:rgba(0,0,0,0.3);border:1px solid var(--hair-strong);border-radius:4px;outline:none;resize:vertical;min-height:110px;"
+        placeholder="e.g. Adult male, GSW left thigh, arterial bleed, tourniquet placed 90s ago, conscious, pulse 120, no other injuries visible."></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;">
+        <span style="font-family:var(--f-mono);font-size:0.6875rem;letter-spacing:0.06em;color:var(--fg-2);text-transform:uppercase;">You can edit this anytime in the SITUATION panel.</span>
+        <div style="display:flex;gap:8px;">
+          <button id="intakeSkipBtn" type="button"
+            style="padding:6px 14px;background:transparent;color:var(--fg-2);border:1px solid var(--hair);border-radius:4px;cursor:pointer;font-family:var(--f-mono);font-size:0.6875rem;letter-spacing:0.08em;text-transform:uppercase;">Skip</button>
+          <button id="intakeSubmitBtn" type="button"
+            style="padding:6px 18px;background:var(--accent);color:#1a1109;border:1px solid var(--accent);border-radius:4px;cursor:pointer;font-family:var(--f-mono);font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">Begin Encounter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ovl-scrim" id="briefScrim">
+  <div class="ovl">
+    <div class="ovl-head">
+      <span class="label">Who AEGIS Is For</span>
+      <span class="ovl-id">BRIEF</span>
+      <button class="ovl-close" data-ovl="brief"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="ovl-body" style="font-family:var(--f-serif);font-size:0.9375rem;line-height:1.6;color:var(--fg-0);">
+      <p style="margin-bottom:14px;">Maria Chen is an EMT in rural Colorado, 70 minutes from the nearest Level III trauma center. Last winter she responded to a snowmobile crash in a canyon with no cellular coverage. Her patient had a suspected pelvic fracture and she had thirty minutes of training on that specific injury, two years earlier. She made the call alone. She did okay. She still thinks about whether she got it right.</p>
+      <p style="font-style:italic;color:var(--fg-1);">AEGIS exists for the next time Maria takes that call.</p>
+    </div>
+  </div>
+</div>
+
+<div class="ovl-scrim" id="recScrim">
+  <div class="ovl ovl-wide">
+    <div class="ovl-head">
+      <span class="label">Patient Record</span>
+      <span class="ovl-id" id="recOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="rec"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="ovl-body">
+      <div id="recTimeline" class="mono-sm">No events yet.</div>
+    </div>
+  </div>
+</div>
+
+<div class="ovl-scrim" id="sysScrim">
+  <div class="ovl ovl-wide">
+    <div class="ovl-head">
+      <span class="label">System Diagnostics</span>
+      <span class="ovl-id" id="sysOvlTitle">v2.0.0</span>
+      <button class="ovl-close" data-ovl="sys"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="ovl-body" id="sysBody" class="mono-sm">Loading…</div>
+  </div>
+</div>
+
+<div class="ovl-scrim" id="citeScrim">
+  <div class="ovl">
+    <div class="ovl-head">
+      <span class="label">Retrieved Source</span>
+      <span class="ovl-id" id="citeOvlTitle">—</span>
+      <button class="ovl-close" data-ovl="cite"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></button>
+    </div>
+    <div class="ovl-body" id="citeBody"><div class="serif-body" id="citeText">—</div></div>
+    <div class="ovl-foot"><span id="citeMeta">—</span></div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+<script src="/ambient/flow-field.js" defer></script>
+</body>
+</html>
